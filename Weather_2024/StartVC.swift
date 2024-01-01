@@ -9,7 +9,7 @@ import UIKit
 
 class StartVC: UIViewController {
     
-    let weatherStartWebURL = "http://api.weatherapi.com/v1/current.json?key=3a655f9805e44ca1b0a161457232411&q="
+    let weatherStartWebURL = "http://api.weatherapi.com/v1/forecast.json?key=3a655f9805e44ca1b0a161457232411&q="
 
     var weather: Weather!
 //    var weathers = [Weather]()
@@ -132,15 +132,33 @@ class StartVC: UIViewController {
             
             switch result {
             case .success(let weather):
-                print(weather)
                 
                 self.weather = weather
+                print(weather)
+
                 
                 var snapshot = NSDiffableDataSourceSnapshot<MainWindowSection, Double >()
                 
                 snapshot.appendSections([MainWindowSection.todaysWeatherSection, MainWindowSection.forecastSection, MainWindowSection.mapSection, MainWindowSection.additionInfoSection])
 
-                snapshot.appendItems([self.weather.current.feelslike_c, 0.45,15.0,20.45], toSection: .todaysWeatherSection)
+                snapshot.appendItems(
+                    [
+                        self.weather.forecast.forecastday[0].hour[0].temp_c,
+                        self.weather.forecast.forecastday[0].hour[1].temp_c,
+                        self.weather.forecast.forecastday[0].hour[2].temp_c,
+                        self.weather.forecast.forecastday[0].hour[3].temp_c,
+                        self.weather.forecast.forecastday[0].hour[4].temp_c,
+                        self.weather.forecast.forecastday[0].hour[5].temp_c,
+                        self.weather.forecast.forecastday[0].hour[6].temp_c
+
+
+
+
+
+
+                
+                
+                ], toSection: .todaysWeatherSection)
                 self.TodayWeatherDataSource.apply(snapshot, animatingDifferences: false)
 
 
