@@ -32,7 +32,7 @@ class NetworkManager {
                 return
             }
             let weather = try! JSONDecoder().decode(Weather.self, from: data)
-            print(weather)
+          //  print(weather)
 
             DispatchQueue.main.async {
                 complition(.success(weather))
@@ -40,4 +40,33 @@ class NetworkManager {
 
         }.resume()
     }
+    
+    func fetchImage(url:String, complition: @escaping(Result<UIImage,NetworkError>) -> Void) {
+        
+        guard let url = URL(string: url) else {
+            complition(.failure(.invalidUrl))
+            return
+        }
+        URLSession.shared.dataTask(with: url) { (data, _, _) in
+            
+            guard let data = data else {
+                complition(.failure(.invalidData))
+                return
+            }
+            
+            
+                
+            
+            guard let image = UIImage(data: data) else {
+                complition(.failure(.decodingError))
+                return
+            }
+            DispatchQueue.main.async {
+
+            complition(.success(image))
+            }
+        }.resume()
+        
+    }
+    
 }

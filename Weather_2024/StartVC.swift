@@ -11,6 +11,7 @@ class StartVC: UIViewController {
     
     let weatherStartWebURL = "http://api.weatherapi.com/v1/forecast.json?key=3a655f9805e44ca1b0a161457232411&q="
 
+
     var weather: Weather!
 //    var weathers = [Weather]()
 //
@@ -34,7 +35,7 @@ class StartVC: UIViewController {
 
 
     var weatherInfoCollectionView: UICollectionView!
-    var TodayWeatherDataSource: UICollectionViewDiffableDataSource<MainWindowSection, Double>!
+    var TodayWeatherDataSource: UICollectionViewDiffableDataSource<MainWindowSection, Hour>!
     
     
   
@@ -115,7 +116,23 @@ class StartVC: UIViewController {
         
         TodayWeatherDataSource = UICollectionViewDiffableDataSource(collectionView: weatherInfoCollectionView, cellProvider: { (collectionView, indexPath, item) -> UICollectionViewCell? in
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: TodayWeatherCell.cellReuseIdentifire, for: indexPath) as! TodayWeatherCell
-            cell.tempLabel.text = "\(item)"
+            cell.tempLabel.text = "\(item.temp_c)"
+            cell.timeLabel.text = "\(item.time.suffix(5).prefix(2))"
+            
+            let imageUrl = "https:" + item.condition.icon
+            
+            NetworkManager.shared.fetchImage(url: imageUrl) { (result) in
+                switch result {
+                
+                case .success(let weatherImage):
+                    DispatchQueue.main.async {
+                    
+                    cell.image.image = weatherImage
+                    }
+                case .failure(let error):
+                    print("\(error)")
+                }
+            }
             
             return cell
         })
@@ -123,33 +140,30 @@ class StartVC: UIViewController {
     
     
     private func reload() {
-        
-
-        
+       
         NetworkManager.shared.fetchData(url:weatherStartWebURL + "tyumen") { (result) in
-            
-            
-            
             switch result {
             case .success(let weather):
                 
                 self.weather = weather
-                print(weather)
+              //  print(weather)
 
                 
-                var snapshot = NSDiffableDataSourceSnapshot<MainWindowSection, Double >()
+                var snapshot = NSDiffableDataSourceSnapshot<MainWindowSection, Hour >()
                 
                 snapshot.appendSections([MainWindowSection.todaysWeatherSection, MainWindowSection.forecastSection, MainWindowSection.mapSection, MainWindowSection.additionInfoSection])
 
+                
+                
                 snapshot.appendItems(
                     [
-                        self.weather.forecast.forecastday[0].hour[0].temp_c,
-                        self.weather.forecast.forecastday[0].hour[1].temp_c,
-                        self.weather.forecast.forecastday[0].hour[2].temp_c,
-                        self.weather.forecast.forecastday[0].hour[3].temp_c,
-                        self.weather.forecast.forecastday[0].hour[4].temp_c,
-                        self.weather.forecast.forecastday[0].hour[5].temp_c,
-                        self.weather.forecast.forecastday[0].hour[6].temp_c
+                        self.weather.forecast.forecastday[0].hour[0],
+                        self.weather.forecast.forecastday[0].hour[1],
+                        self.weather.forecast.forecastday[0].hour[2],
+                        self.weather.forecast.forecastday[0].hour[3],
+                        self.weather.forecast.forecastday[0].hour[4],
+                        self.weather.forecast.forecastday[0].hour[5],
+                        self.weather.forecast.forecastday[0].hour[6]
 
 
 
